@@ -157,11 +157,10 @@ public class TextureCollider : MonoBehaviour
                         islandPixels.Add(new Vector2Int(currentX, currentY));
 
 
-                        // Помещаем соседние пиксели на стек для обработки
-                        stack.Push(currentIndex + simplify);     // Правый пиксель
-                        stack.Push(currentIndex - simplify);     // Левый пиксель
-                        stack.Push(currentIndex + width * simplify); // Верхний пиксель
-                        stack.Push(currentIndex - width * simplify); // Нижний пиксель
+                        stack.Push(currentIndex + simplify);
+                        stack.Push(currentIndex - simplify);
+                        stack.Push(currentIndex + width * simplify);
+                        stack.Push(currentIndex - width * simplify);
                     }
 
 

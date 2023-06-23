@@ -84,5 +84,14 @@ namespace Game.Utils
         public float Distance { get; }
         public int X { get; }
         public int Y { get; }
+
+        public bool Equals(TextureHit other)
+        {
+            return X == other.X && Y == other.Y;
+        }
+        public override int GetHashCode()
+        {
+            return X.GetHashCode() + Y.GetHashCode();
+        }
     }
 }
