@@ -22,7 +22,7 @@ namespace Game.Utils
 
             return (coords - texurePivot) / sprite.pixelsPerUnit;
         }
-        public static List<Vector2Int> OverlapCircleOld(Vector2 coords, int radius, Sprite sprite)
+        public static List<Vector2Int> OverlapCircle(Vector2 coords, int radius, Sprite sprite)
         {
             int sqrRadius = radius * radius;
 
@@ -50,7 +50,7 @@ namespace Game.Utils
 
             return reuslt;
         }
-        public static List<Vector2Int> OverlapCircle(Vector2 coords, int radius, Sprite sprite)
+        public static List<Vector2Int> OverlapCircleOld(Vector2 coords, int radius, Sprite sprite)
         {
             int width = sprite.texture.width;
             int height = sprite.texture.height;
@@ -82,6 +82,51 @@ namespace Game.Utils
             return pixelCoords;
         }
 
+
+        public static Vector2Int Multilied(this Vector2Int self, float value)
+        {
+            return new Vector2Int(Mathf.RoundToInt(self.x * value), Mathf.RoundToInt(self.y * value));
+        }
+        public static Vector2Int Multilied(this Vector2Int self, float x, float y)
+        {
+            return new Vector2Int(Mathf.RoundToInt(self.x * x), Mathf.RoundToInt(self.y * y));
+        }
+        public static Vector2Int Rounded(this Vector2 self)
+        {
+            return new Vector2Int(Mathf.RoundToInt(self.x), Mathf.RoundToInt(self.y));
+        }
+        public static Vector2Int Rounded(this Vector3 self)
+        {
+            return new Vector2Int(Mathf.RoundToInt(self.x), Mathf.RoundToInt(self.y));
+        }
+        public static Vector3 ToVector3(this Vector2Int self)
+        {
+            return new Vector3(self.x, self.y, 0);
+        }
+
+
+        public static HashSet<Vector2Int> GetCoords(this Sprite self)
+        {
+            int width = self.texture.width;
+            int height = self.texture.height;
+
+            HashSet<Vector2Int> points = new HashSet<Vector2Int>(width * height);
+            Color[] pixels = self.texture.GetPixels();
+
+            for (int y = 0; y < height; y++)
+            {
+                for (int x = 0; x < width; x++)
+                {
+                    int index = x + y * width;
+                    if(pixels[index].a > 0.5f)
+                    {
+                        points.Add(new Vector2Int(x, y));
+                    }
+                }
+            }
+
+            return points;
+        }
 
 
         public static Sprite Copy(this Sprite self)

@@ -13,6 +13,7 @@ public class SpriteContainer : MonoBehaviour
     private Sprite sprite;
     private Texture2D texture;
 
+    private Color[] pixelsBuffer;
 
     public Sprite Sprite
     {
@@ -36,6 +37,11 @@ public class SpriteContainer : MonoBehaviour
             return texture.GetPixels();
         }
     }
+    public SpriteArea Area
+    {
+        get;
+        private set;
+    }
 
 
     public event System.Action OnUpdated;
@@ -51,16 +57,20 @@ public class SpriteContainer : MonoBehaviour
         sprite = spriteRenderer.sprite.Copy();
         spriteRenderer.sprite = sprite;
         texture = sprite.texture;
+
+        Area = new SpriteArea(spriteRenderer);
+        pixelsBuffer = Pixels;
     }
 
-
-    public void ClearPixels(List<Vector2Int> coords)
+    public void ClearPixels(IEnumerable<Vector2Int> coords)
     {
         foreach (Vector2Int coord in coords)
         {
             texture.SetPixel(coord.x, coord.y, Color.clear);
         }
+
         texture.Apply();
+        //Area.Remove(coords);
 
         OnUpdated?.Invoke();
     }
