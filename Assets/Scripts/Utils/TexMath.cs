@@ -22,16 +22,18 @@ namespace Game.Utils
 
             return (coords - texurePivot) / sprite.pixelsPerUnit;
         }
-        public static List<TextureHit> OverlapCircle(Vector2 coords, float radius, Sprite sprite)
+        public static List<Vector2Int> OverlapCircleOld(Vector2 coords, int radius, Sprite sprite)
         {
-            float sqrRadius = radius * radius;
+            int sqrRadius = radius * radius;
 
-            List<TextureHit> points = new List<TextureHit>();
 
             int minX = Mathf.Max(Mathf.FloorToInt(coords.x - radius), 0);
             int maxX = Mathf.Min(Mathf.CeilToInt(coords.x + radius), sprite.texture.width);
             int minY = Mathf.Max(Mathf.FloorToInt(coords.y - radius), 0);
             int maxY = Mathf.Min(Mathf.CeilToInt(coords.y + radius), sprite.texture.height);
+
+            int capacity = Mathf.Abs((maxX - minX) * (maxY - minY));
+            List<Vector2Int> reuslt = new List<Vector2Int>(capacity);
 
             for (int x = minX; x <= maxX; x++)
             {
@@ -41,14 +43,44 @@ namespace Game.Utils
 
                     if (sqrDistance < sqrRadius)
                     {
-                        points.Add(new TextureHit(Mathf.Sqrt(sqrDistance), x, y));
+                        reuslt.Add(new Vector2Int(x, y));
                     }
                 }
             }
 
-            return points;
+            return reuslt;
         }
+        public static List<Vector2Int> OverlapCircle(Vector2 coords, int radius, Sprite sprite)
+        {
+            int width = sprite.texture.width;
+            int height = sprite.texture.height;
 
+            List<Vector2Int> pixelCircle = new List<Vector2Int>();
+            for(int x = -radius; x <= radius; x++)
+            {
+                for(int y = -radius; y <= radius; y++)
+                {
+                    if (x * x + y * y <= radius * radius)
+                    {
+                        pixelCircle.Add(new Vector2Int(x, y));
+                    }
+                }
+            }
+            List<Vector2Int> pixelCoords = new List<Vector2Int>();
+
+            Vector2Int centerCoords = new Vector2Int(Mathf.RoundToInt(coords.x), Mathf.RoundToInt(coords.y));
+
+            foreach (Vector2Int pixel in pixelCircle)
+            {
+                Vector2Int result = centerCoords + pixel;
+                if (result.x < 0 || result.x >= width || result.y < 0 || result.y >= height)
+                    continue;
+
+                pixelCoords.Add(result);
+            }
+
+            return pixelCoords;
+        }
 
 
 
@@ -68,30 +100,6 @@ namespace Game.Utils
             copiedTexture.Apply(true);
 
             return copiedTexture;
-        }
-    }
-
-
-    public struct TextureHit
-    {
-        public TextureHit(float distance, int x, int y)
-        {
-            Distance = distance;
-            X = x;
-            Y = y;
-        }
-
-        public float Distance { get; }
-        public int X { get; }
-        public int Y { get; }
-
-        public bool Equals(TextureHit other)
-        {
-            return X == other.X && Y == other.Y;
-        }
-        public override int GetHashCode()
-        {
-            return X.GetHashCode() + Y.GetHashCode();
         }
     }
 }

@@ -9,33 +9,38 @@ using UnityEngine.Profiling;
 using Cysharp.Threading.Tasks;
 
 
-[RequireComponent(typeof(SpriteRenderer))]
+[RequireComponent(typeof(SpriteContainer))]
 [RequireComponent(typeof(PolygonCollider2D))]
 public class TextureCollider : MonoBehaviour
 {
+    [SerializeField] private bool isEnabled = true;
     [SerializeField, Min(1)] private int simplify;
 
-    private SpriteRenderer spriteRenderer;
+    private SpriteContainer spriteContainer;
     private PolygonCollider2D polygonCollider;
 
-    private Texture2D texture;
     
     private void Awake()
     {
-        spriteRenderer = GetComponent<SpriteRenderer>();
+        spriteContainer = GetComponent<SpriteContainer>();
         polygonCollider = GetComponent<PolygonCollider2D>();
 
-        texture = spriteRenderer.sprite.texture;
+        spriteContainer.OnUpdated += UpdateCollider;
     }
     private void Start()
     {
-        //AdjustCollider();
+        if(isEnabled)
+        {
+            UpdateCollider();
+        }
     }
-
 
     private void UpdateCollider()
     {
-        List<HashSet<Vector2Int>> pixelIslands = FindPixelIslands(texture);
+        if (!isEnabled)
+            return;
+
+        List<HashSet<Vector2Int>> pixelIslands = FindPixelIslands(spriteContainer.Pixels, spriteContainer.Size);
 
         polygonCollider.pathCount = pixelIslands.Count;
 
@@ -58,14 +63,11 @@ public class TextureCollider : MonoBehaviour
 
     private void CreateCollider(int index, Vector2Int[] pixels)
     {
-        Profiler.BeginSample(nameof(CreateCollider));
-
-
         Vector2[] vertex = new Vector2[pixels.Length];
 
         for(int i = 0; i < pixels.Length; i++)
         {
-            Vector2 localPoint = TexMath.TextureCoordToPoint(pixels[i], spriteRenderer.sprite);
+            Vector2 localPoint = TexMath.TextureCoordToPoint(pixels[i], spriteContainer.Sprite);
             Vector3 worldPoint = transform.TransformPoint(localPoint);
 
             vertex[i] = worldPoint;
@@ -73,9 +75,8 @@ public class TextureCollider : MonoBehaviour
         }
 
         polygonCollider.SetPath(index, vertex);
-
-        Profiler.EndSample();
     }
+
     public Vector2Int[] FindPixelBoundary(HashSet<Vector2Int> pixels)
     {
         List<Vector2Int> border = new List<Vector2Int>();
@@ -119,14 +120,14 @@ public class TextureCollider : MonoBehaviour
 
         return border.ToArray();
     }
-    private List<HashSet<Vector2Int>> FindPixelIslands(Texture2D texture)
-    {
-        int width = texture.width;
-        int height = texture.height;
-        Color[] pixels = texture.GetPixels();
 
-        bool[] visited = new bool[width * height];
+    private List<HashSet<Vector2Int>> FindPixelIslands(Color[] pixels, Vector2Int size)
+    {
+        bool[] visited = new bool[size.x * size.y];
         List<HashSet<Vector2Int>> islands = new List<HashSet<Vector2Int>>();
+
+        int width = size.x;
+        int height = size.y;
 
         for (int y = 0; y < height; y += simplify)
         {
@@ -156,13 +157,16 @@ public class TextureCollider : MonoBehaviour
                         visited[currentIndex] = true;
                         islandPixels.Add(new Vector2Int(currentX, currentY));
 
-
-                        stack.Push(currentIndex + simplify);
-                        stack.Push(currentIndex - simplify);
-                        stack.Push(currentIndex + width * simplify);
-                        stack.Push(currentIndex - width * simplify);
+                        // Проверяем соседние пиксели только если текущий пиксель не находится на границе изображения
+                        if (currentX > 0)
+                            stack.Push(currentIndex - simplify);
+                        if (currentX < width - 1)
+                            stack.Push(currentIndex + simplify);
+                        if (currentY > 0)
+                            stack.Push(currentIndex - width * simplify);
+                        if (currentY < height - 1)
+                            stack.Push(currentIndex + width * simplify);
                     }
-
 
                     islands.Add(islandPixels);
                 }
@@ -172,9 +176,52 @@ public class TextureCollider : MonoBehaviour
         return islands;
     }
 
-
-    private void FixedUpdate()
+    private void a()
     {
-        UpdateCollider();
+        //bool[] visited = new bool[size.x * size.y];
+        //List<HashSet<Vector2Int>> islands = new List<HashSet<Vector2Int>>();
+
+        //for (int y = 0; y < size.y; y += simplify)
+        //{
+        //    for (int x = 0; x < size.x; x += simplify)
+        //    {
+        //        int index = x + y * size.x;
+
+        //        if (!visited[index] && pixels[index].a > 0.5f)
+        //        {
+        //            HashSet<Vector2Int> islandPixels = new HashSet<Vector2Int>();
+
+        //            Stack<int> stack = new Stack<int>();
+        //            stack.Push(index);
+
+        //            while (stack.Count > 0)
+        //            {
+        //                int currentIndex = stack.Pop();
+
+        //                int currentX = currentIndex % size.x;
+        //                int currentY = currentIndex / size.x;
+
+        //                if (currentX < 0 || currentX >= size.x || currentY < 0 || currentY >= size.y || visited[currentIndex] || pixels[currentIndex].a <= 0f)
+        //                {
+        //                    continue;
+        //                }
+
+        //                visited[currentIndex] = true;
+        //                islandPixels.Add(new Vector2Int(currentX, currentY));
+
+
+        //                stack.Push(currentIndex + simplify);
+        //                stack.Push(currentIndex - simplify);
+        //                stack.Push(currentIndex + size.x * simplify);
+        //                stack.Push(currentIndex - size.x * simplify);
+        //            }
+
+
+        //            islands.Add(islandPixels);
+        //        }
+        //    }
+        //}
+
+        //return islands;
     }
 }
