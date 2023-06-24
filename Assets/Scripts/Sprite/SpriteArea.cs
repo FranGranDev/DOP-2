@@ -6,9 +6,12 @@ using Game.Utils;
 
 public class SpriteArea
 {
-    public SpriteArea(SpriteRenderer spriteRenderer)
+    public SpriteArea(SpriteRenderer spriteRenderer, int simplify = 1)
     {
         this.spriteRenderer = spriteRenderer;
+
+        Width = spriteRenderer.sprite.texture.width;
+        Height = spriteRenderer.sprite.texture.height;
 
         TextureCenter = TexMath.PointToTextureCoord(Vector3.zero, spriteRenderer.sprite).Rounded();
 
@@ -17,7 +20,7 @@ public class SpriteArea
 
     private SpriteRenderer spriteRenderer;
 
-    public HashSet<Vector2Int> Points
+    public List<Vector2Int> Points
     {
         get;
         private set;
@@ -31,29 +34,17 @@ public class SpriteArea
     {
         get => spriteRenderer.transform.localScale;
     }
+    public int Width { get; }
+    public int Height { get; }
 
 
     public void SetPoints()
     {
         Points = spriteRenderer.sprite.GetCoords();
     }
-    public void Remove(Vector2Int point)
+
+    public bool Inside(Vector2Int point)
     {
-        Points.Remove(point);
-    }
-    public void Remove(IEnumerable<Vector2Int> points)
-    {
-        foreach(Vector2Int point in points)
-        {
-            Points.Remove(point);
-        }
-    }
-
-
-
-
-    public IEnumerable<Vector2Int> Intercept(HashSet<Vector2Int> points)
-    {
-        return Points.Intersect(points);
+        return point.x >= 0 && point.x < Width && point.y >= 0 && point.y < Height;
     }
 }

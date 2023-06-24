@@ -18,7 +18,5 @@ public class Brush : MonoBehaviour
     private void Awake()
     {
         Area = new SpriteArea(spriteRenderer);
-
-        Debug.Log(Area.Points.Count);
     }
 }

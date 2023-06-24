@@ -65,18 +65,22 @@ public class SpriteContainer : MonoBehaviour
 
     public void ClearPixels(IEnumerable<Vector2Int> coords)
     {
-        Profiler.BeginSample("WTF");
+        int changed = 0;
 
+        int index = 0;
         int width = texture.width;
         Color32 color = new Color32(0, 0, 0, 0);
         foreach (Vector2Int coord in coords)
         {
-            pixelsBuffer[coord.x + coord.y * width] = color;
-            i++;
+            index = coord.x + coord.y * width;
+            if (pixelsBuffer[index].a == 0)
+                continue;
+
+            pixelsBuffer[index] = color;
+            changed++;
         }
-
-        Profiler.EndSample();
-
+        if (changed == 0)
+            return;
 
         texture.SetPixels32(pixelsBuffer);
         texture.Apply();

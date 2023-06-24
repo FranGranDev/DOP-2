@@ -83,6 +83,10 @@ namespace Game.Utils
         }
 
 
+        public static Vector2Int Devided(this Vector2Int self, float value)
+        {
+            return new Vector2Int(Mathf.RoundToInt(self.x / value), Mathf.RoundToInt(self.y / value));
+        }
         public static Vector2Int Multilied(this Vector2Int self, float value)
         {
             return new Vector2Int(Mathf.RoundToInt(self.x * value), Mathf.RoundToInt(self.y * value));
@@ -105,12 +109,12 @@ namespace Game.Utils
         }
 
 
-        public static HashSet<Vector2Int> GetCoords(this Sprite self)
+        public static List<Vector2Int> GetCoords(this Sprite self)
         {
             int width = self.texture.width;
             int height = self.texture.height;
 
-            HashSet<Vector2Int> points = new HashSet<Vector2Int>(width * height);
+            List<Vector2Int> points = new List<Vector2Int>(width * height);
             Color[] pixels = self.texture.GetPixels();
 
             for (int y = 0; y < height; y++)

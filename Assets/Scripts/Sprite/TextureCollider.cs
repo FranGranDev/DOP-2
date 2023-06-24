@@ -44,8 +44,10 @@ public class TextureCollider : MonoBehaviour
         if (!isEnabled)
             return;
 
+        Profiler.BeginSample("Islands");
         List<HashSet<Vector2Int>> pixelIslands = FindPixelIslands(spriteContainer.Pixels, spriteContainer.Size);
 
+        Profiler.EndSample();
         polygonCollider.pathCount = pixelIslands.Count;
 
         int index = 0;
@@ -180,52 +182,8 @@ public class TextureCollider : MonoBehaviour
         return islands;
     }
 
-    private void a()
+    private void FixedUpdate()
     {
-        //bool[] visited = new bool[size.x * size.y];
-        //List<HashSet<Vector2Int>> islands = new List<HashSet<Vector2Int>>();
-
-        //for (int y = 0; y < size.y; y += simplify)
-        //{
-        //    for (int x = 0; x < size.x; x += simplify)
-        //    {
-        //        int index = x + y * size.x;
-
-        //        if (!visited[index] && pixels[index].a > 0.5f)
-        //        {
-        //            HashSet<Vector2Int> islandPixels = new HashSet<Vector2Int>();
-
-        //            Stack<int> stack = new Stack<int>();
-        //            stack.Push(index);
-
-        //            while (stack.Count > 0)
-        //            {
-        //                int currentIndex = stack.Pop();
-
-        //                int currentX = currentIndex % size.x;
-        //                int currentY = currentIndex / size.x;
-
-        //                if (currentX < 0 || currentX >= size.x || currentY < 0 || currentY >= size.y || visited[currentIndex] || pixels[currentIndex].a <= 0f)
-        //                {
-        //                    continue;
-        //                }
-
-        //                visited[currentIndex] = true;
-        //                islandPixels.Add(new Vector2Int(currentX, currentY));
-
-
-        //                stack.Push(currentIndex + simplify);
-        //                stack.Push(currentIndex - simplify);
-        //                stack.Push(currentIndex + size.x * simplify);
-        //                stack.Push(currentIndex - size.x * simplify);
-        //            }
-
-
-        //            islands.Add(islandPixels);
-        //        }
-        //    }
-        //}
-
-        //return islands;
+        UpdateCollider();
     }
 }
