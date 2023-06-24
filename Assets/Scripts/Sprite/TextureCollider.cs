@@ -139,11 +139,11 @@ public class TextureCollider : MonoBehaviour
 
     private List<HashSet<Vector2Int>> FindPixelIslands(Color[] pixels, Vector2Int size)
     {
-        bool[] visited = new bool[size.x * size.y];
-        List<HashSet<Vector2Int>> islands = new List<HashSet<Vector2Int>>();
-
         int width = size.x;
         int height = size.y;
+        int[] labels = new int[width * height];
+        int currentLabel = 1;
+        List<HashSet<Vector2Int>> islands = new List<HashSet<Vector2Int>>();
 
         for (int y = 0; y < height; y += simplify)
         {
@@ -151,41 +151,57 @@ public class TextureCollider : MonoBehaviour
             {
                 int index = x + y * width;
 
-                if (!visited[index] && pixels[index].a > 0.5f)
+                if (pixels[index].a > 0.5f && labels[index] == 0)
                 {
                     HashSet<Vector2Int> islandPixels = new HashSet<Vector2Int>();
-                    TraverseIslandPixels(pixels, visited, islandPixels, width, height, x, y);
+                    LabelConnectedComponent(pixels, labels, width, height, x, y, currentLabel, islandPixels);
                     islands.Add(islandPixels);
+                    currentLabel++;
                 }
             }
         }
 
         return islands;
     }
-    private void TraverseIslandPixels(Color[] pixels, bool[] visited, HashSet<Vector2Int> islandPixels, int width, int height, int x, int y)
+
+    private void LabelConnectedComponent(Color[] pixels, int[] labels, int width, int height, int x, int y, int currentLabel, HashSet<Vector2Int> islandPixels)
     {
-        if (x < 0 || x >= width || y < 0 || y >= height || visited[x + y * width] || pixels[x + y * width].a <= 0f)
+        Queue<Vector2Int> queue = new Queue<Vector2Int>();
+        Vector2Int startPixel = new Vector2Int(x, y);
+        queue.Enqueue(startPixel);
+        labels[x + y * width] = currentLabel;
+        islandPixels.Add(startPixel);
+
+        while (queue.Count > 0)
         {
-            return;
+            Vector2Int pixel = queue.Dequeue();
+            x = pixel.x;
+            y = pixel.y;
+
+            EnqueueIfValidPixel(queue, labels, pixels, width, height, x - simplify, y, currentLabel, islandPixels);
+            EnqueueIfValidPixel(queue, labels, pixels, width, height, x + simplify, y, currentLabel, islandPixels);
+            EnqueueIfValidPixel(queue, labels, pixels, width, height, x, y - simplify, currentLabel, islandPixels);
+            EnqueueIfValidPixel(queue, labels, pixels, width, height, x, y + simplify, currentLabel, islandPixels);
         }
-
-        visited[x + y * width] = true;
-        islandPixels.Add(new Vector2Int(x, y));
-
-        // Проверяем соседние пиксели только если текущий пиксель не находится на границе изображения
-        if (x > 0)
-            TraverseIslandPixels(pixels, visited, islandPixels, width, height, x - simplify, y);
-        if (x < width - simplify)
-            TraverseIslandPixels(pixels, visited, islandPixels, width, height, x + simplify, y);
-        if (y > 0)
-            TraverseIslandPixels(pixels, visited, islandPixels, width, height, x, y - simplify);
-        if (y < height - simplify)
-            TraverseIslandPixels(pixels, visited, islandPixels, width, height, x, y + simplify);
     }
+
+    private void EnqueueIfValidPixel(Queue<Vector2Int> queue, int[] labels, Color[] pixels, int width, int height, int x, int y, int currentLabel, HashSet<Vector2Int> islandPixels)
+    {
+        if (x >= 0 && x < width && y >= 0 && y < height && pixels[x + y * width].a > 0.5f && labels[x + y * width] == 0)
+        {
+            Vector2Int pixel = new Vector2Int(x, y);
+            queue.Enqueue(pixel);
+            labels[x + y * width] = currentLabel;
+            islandPixels.Add(pixel);
+        }
+    }
+
 
 
     private void Update()
     {
+        UpdateCollider();
+
         if (updateCalled && Time.time > prevUpdateTime + minUpdateTime)
         {
             UpdateCollider();
