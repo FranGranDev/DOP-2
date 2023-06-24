@@ -668,6 +668,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   isEnabled: 1
   simplify: 5
+  minUpdateTime: 0.5
 --- !u!114 &1390616194
 MonoBehaviour:
   m_ObjectHideFlags: 0

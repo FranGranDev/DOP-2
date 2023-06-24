@@ -14,10 +14,15 @@ using Cysharp.Threading.Tasks;
 public class TextureCollider : MonoBehaviour
 {
     [SerializeField] private bool isEnabled = true;
+    [Space]
     [SerializeField, Min(1)] private int simplify;
+    [SerializeField] private float minUpdateTime;
 
     private SpriteContainer spriteContainer;
     private PolygonCollider2D polygonCollider;
+
+    private float prevUpdateTime = float.MinValue;
+    private bool updateCalled;
 
     public SpriteContainer Attached
     {
@@ -29,7 +34,7 @@ public class TextureCollider : MonoBehaviour
         spriteContainer = GetComponent<SpriteContainer>();
         polygonCollider = GetComponent<PolygonCollider2D>();
 
-        spriteContainer.OnUpdated += UpdateCollider;
+        spriteContainer.OnUpdated += CallUpdate;
     }
     private void Start()
     {
@@ -39,6 +44,11 @@ public class TextureCollider : MonoBehaviour
         }
     }
 
+
+    private void CallUpdate()
+    {
+        updateCalled = true;
+    }
     private void UpdateCollider()
     {
         if (!isEnabled)
@@ -144,36 +154,7 @@ public class TextureCollider : MonoBehaviour
                 if (!visited[index] && pixels[index].a > 0.5f)
                 {
                     HashSet<Vector2Int> islandPixels = new HashSet<Vector2Int>();
-
-                    Stack<int> stack = new Stack<int>();
-                    stack.Push(index);
-
-                    while (stack.Count > 0)
-                    {
-                        int currentIndex = stack.Pop();
-
-                        int currentX = currentIndex % width;
-                        int currentY = currentIndex / width;
-
-                        if (currentX < 0 || currentX >= width || currentY < 0 || currentY >= height || visited[currentIndex] || pixels[currentIndex].a <= 0f)
-                        {
-                            continue;
-                        }
-
-                        visited[currentIndex] = true;
-                        islandPixels.Add(new Vector2Int(currentX, currentY));
-
-                        // Проверяем соседние пиксели только если текущий пиксель не находится на границе изображения
-                        if (currentX > 0)
-                            stack.Push(currentIndex - simplify);
-                        if (currentX < width - 1)
-                            stack.Push(currentIndex + simplify);
-                        if (currentY > 0)
-                            stack.Push(currentIndex - width * simplify);
-                        if (currentY < height - 1)
-                            stack.Push(currentIndex + width * simplify);
-                    }
-
+                    TraverseIslandPixels(pixels, visited, islandPixels, width, height, x, y);
                     islands.Add(islandPixels);
                 }
             }
@@ -181,9 +162,36 @@ public class TextureCollider : MonoBehaviour
 
         return islands;
     }
-
-    private void FixedUpdate()
+    private void TraverseIslandPixels(Color[] pixels, bool[] visited, HashSet<Vector2Int> islandPixels, int width, int height, int x, int y)
     {
-        UpdateCollider();
+        if (x < 0 || x >= width || y < 0 || y >= height || visited[x + y * width] || pixels[x + y * width].a <= 0f)
+        {
+            return;
+        }
+
+        visited[x + y * width] = true;
+        islandPixels.Add(new Vector2Int(x, y));
+
+        // Проверяем соседние пиксели только если текущий пиксель не находится на границе изображения
+        if (x > 0)
+            TraverseIslandPixels(pixels, visited, islandPixels, width, height, x - simplify, y);
+        if (x < width - simplify)
+            TraverseIslandPixels(pixels, visited, islandPixels, width, height, x + simplify, y);
+        if (y > 0)
+            TraverseIslandPixels(pixels, visited, islandPixels, width, height, x, y - simplify);
+        if (y < height - simplify)
+            TraverseIslandPixels(pixels, visited, islandPixels, width, height, x, y + simplify);
+    }
+
+
+    private void Update()
+    {
+        if (updateCalled && Time.time > prevUpdateTime + minUpdateTime)
+        {
+            UpdateCollider();
+
+            prevUpdateTime = Time.time;
+            updateCalled = false;
+        }
     }
 }
