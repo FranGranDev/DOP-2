@@ -46,7 +46,7 @@ public class SpriteEraser : MonoBehaviour
         float scaleX = brush.Area.Scale.x * ratio;
         float scaleY = brush.Area.Scale.y * ratio;
 
-        Profiler.BeginSample($"Calculate");
+        Profiler.BeginSample($"Find Intercept");
 
         foreach (Vector2Int point in brush.Area.Points)
         {
@@ -54,7 +54,6 @@ public class SpriteEraser : MonoBehaviour
         }
 
         IEnumerable<Vector2Int> result = targetSprite.Area.Intercept(points);
-
 
         Profiler.EndSample();
 

@@ -19,6 +19,10 @@ public class TextureCollider : MonoBehaviour
     private SpriteContainer spriteContainer;
     private PolygonCollider2D polygonCollider;
 
+    public SpriteContainer Attached
+    {
+        get => spriteContainer;
+    }
     
     private void Awake()
     {

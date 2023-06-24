@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using Game.Utils;
 using Cysharp.Threading.Tasks;
+using UnityEngine.Profiling;
 
 [RequireComponent(typeof(SpriteRenderer))]
 public class SpriteContainer : MonoBehaviour
@@ -13,7 +14,7 @@ public class SpriteContainer : MonoBehaviour
     private Sprite sprite;
     private Texture2D texture;
 
-    private Color[] pixelsBuffer;
+    private Color32[] pixelsBuffer;
 
     public Sprite Sprite
     {
@@ -59,16 +60,25 @@ public class SpriteContainer : MonoBehaviour
         texture = sprite.texture;
 
         Area = new SpriteArea(spriteRenderer);
-        pixelsBuffer = Pixels;
+        pixelsBuffer = texture.GetPixels32();
     }
 
     public void ClearPixels(IEnumerable<Vector2Int> coords)
     {
+        Profiler.BeginSample("WTF");
+
+        int width = texture.width;
+        Color32 color = new Color32(0, 0, 0, 0);
         foreach (Vector2Int coord in coords)
         {
-            texture.SetPixel(coord.x, coord.y, Color.clear);
+            pixelsBuffer[coord.x + coord.y * width] = color;
+            i++;
         }
 
+        Profiler.EndSample();
+
+
+        texture.SetPixels32(pixelsBuffer);
         texture.Apply();
         //Area.Remove(coords);
 
