@@ -1,5 +1,6 @@
 using Cysharp.Threading.Tasks;
 using Game.Utils;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using Unity.Collections;
@@ -10,41 +11,43 @@ using UnityEngine.Profiling;
 
 public interface ICoordTransform
 {
-    HashSet<Vector2Int> Execute(Vector3 prev, Vector3 point, int iterations, SpriteContainer target, SpriteArea brush);
+    IEnumerable<Vector2Int> Execute(Vector3 point, SpriteContainer target, SpriteArea brush);
+
+
 }
 
-public class CoordTransform : ICoordTransform
-{
-    public HashSet<Vector2Int> Execute(Vector3 prev, Vector3 point, int iterations, SpriteContainer target, SpriteArea brush)
-    {
-        Vector2Int targetCoordStart = TexMath.PointToTextureCoord(target.transform.InverseTransformPoint(prev), target.Sprite).Rounded();
-        Vector2Int targetCoordEnd = TexMath.PointToTextureCoord(target.transform.InverseTransformPoint(point), target.Sprite).Rounded();
+//public class CoordTransform : ICoordTransform
+//{
+//    public HashSet<Vector2Int> Execute(Vector3 prev, Vector3 point, int iterations, SpriteContainer target, SpriteArea brush)
+//    {
+//        Vector2Int targetCoordStart = TexMath.PointToTextureCoord(target.transform.InverseTransformPoint(prev), target.Sprite).Rounded();
+//        Vector2Int targetCoordEnd = TexMath.PointToTextureCoord(target.transform.InverseTransformPoint(point), target.Sprite).Rounded();
 
-        Vector2Int path = (targetCoordEnd - targetCoordStart);
-        Vector2Int step = path.Devided(iterations);
+//        Vector2Int path = (targetCoordEnd - targetCoordStart);
+//        Vector2Int step = path.Devided(iterations);
 
-        HashSet<Vector2Int> points = new HashSet<Vector2Int>();
+//        HashSet<Vector2Int> points = new HashSet<Vector2Int>();
 
-        float ratio = target.Area.PixelsPerUnit / brush.PixelsPerUnit;
-        float scaleX = brush.Scale.x * ratio;
-        float scaleY = brush.Scale.y * ratio;
+//        float ratio = target.Area.PixelsPerUnit / brush.PixelsPerUnit;
+//        float scaleX = brush.Scale.x * ratio;
+//        float scaleY = brush.Scale.y * ratio;
 
-        foreach (Vector2Int coord in brush.Points)
-        {
-            for (int i = 0; i < iterations; i++)
-            {
-                Vector2Int transformed = (coord - brush.TextureCenter).Multilied(scaleX, scaleY) + targetCoordStart + step * i;
-                if (!target.Area.Inside(transformed))
-                    continue;
+//        foreach (Vector2Int coord in brush.Points)
+//        {
+//            for (int i = 0; i < iterations; i++)
+//            {
+//                Vector2Int transformed = (coord - brush.TextureCenter).Multilied(scaleX, scaleY) + targetCoordStart + step * i;
+//                if (!target.Area.Inside(transformed))
+//                    continue;
 
-                points.Add(transformed);
+//                points.Add(transformed);
 
-            }
-        }
+//            }
+//        }
 
-        return points;
-    }
-}
+//        return points;
+//    }
+//}
 
 public class FastCoordTransform : ICoordTransform
 {
@@ -55,9 +58,12 @@ public class FastCoordTransform : ICoordTransform
         {
             brushPoints[i] = brush.Points[i] - brush.TextureCenter;
         }
+
+        output = new NativeArray<Vector2Int>(brushPoints.Length, Allocator.Persistent);
     }
 
     private NativeArray<Vector2Int> brushPoints;
+    private NativeArray<Vector2Int> output;
 
 
     ~FastCoordTransform()
@@ -65,16 +71,18 @@ public class FastCoordTransform : ICoordTransform
         brushPoints.Dispose();
     }
 
-    public HashSet<Vector2Int> Execute(Vector3 prev, Vector3 point, int iterations, SpriteContainer target, SpriteArea brush)
+    public IEnumerable<Vector2Int> Execute(Vector3 point, SpriteContainer target, SpriteArea brush)
     {
-        HashSet<Vector2Int> result = new HashSet<Vector2Int>(brushPoints.Length * iterations);
+        Profiler.BeginSample("Pre");
+
+        //List<Vector2Int> result = new List<Vector2Int>(brushPoints.Length * iterations);
 
 
-        Vector2Int targetCoordStart = TexMath.PointToTextureCoord(target.transform.InverseTransformPoint(prev), target.Sprite).Rounded();
-        Vector2Int targetCoordEnd = TexMath.PointToTextureCoord(target.transform.InverseTransformPoint(point), target.Sprite).Rounded();
+        Vector2Int targetCoordStart = TexMath.PointToTextureCoord(target.transform.InverseTransformPoint(point), target.Sprite).Rounded();
+        //Vector2Int targetCoordEnd = TexMath.PointToTextureCoord(target.transform.InverseTransformPoint(point), target.Sprite).Rounded();
 
-        Vector2Int path = (targetCoordEnd - targetCoordStart);
-        Vector2Int step = path.Devided(iterations);
+        //Vector2Int path = (targetCoordEnd - targetCoordStart);
+        //Vector2Int step = path.Devided(iterations);
 
 
         float ratio = target.Area.PixelsPerUnit / brush.PixelsPerUnit;
@@ -82,38 +90,66 @@ public class FastCoordTransform : ICoordTransform
         float scaleY = brush.Scale.y * ratio;
 
 
-        NativeArray<Vector2Int> output = new NativeArray<Vector2Int>(brushPoints.Length, Allocator.TempJob);
 
-        for (int i = 0; i < iterations; i++)
+        Profiler.EndSample();
+
+
+        PixelsCalculation calculation = new PixelsCalculation()
         {
+            coords = targetCoordStart,
 
-            PixelsCalculation calculation = new PixelsCalculation()
-            {
-                coords = targetCoordStart + step * i,
+            points = brushPoints,
 
-                points = brushPoints,
+            width = target.Area.Width,
+            height = target.Area.Height,
 
-                width = target.Area.Width,
-                height = target.Area.Height,
+            scaleX = scaleX,
+            scaleY = scaleY,
 
-                scaleX = scaleX,
-                scaleY = scaleY,
+            result = output,
+        };
 
-                result = output,
-            };
+        JobHandle jobHandle = calculation.Schedule(brushPoints.Length, 64);
+        jobHandle.Complete();
 
-            JobHandle jobHandle = calculation.Schedule(brushPoints.Length, 64);
-            jobHandle.Complete();
+        //for (int i = 0; i < iterations; i++)
+        //{
+        //    Profiler.BeginSample($"Iteration {i} | Calc");
+
+        //    PixelsCalculation calculation = new PixelsCalculation()
+        //    {
+        //        coords = targetCoordStart + step * i,
+
+        //        points = brushPoints,
+
+        //        width = target.Area.Width,
+        //        height = target.Area.Height,
+
+        //        scaleX = scaleX,
+        //        scaleY = scaleY,
+
+        //        result = output,
+        //    };
+
+        //    JobHandle jobHandle = calculation.Schedule(brushPoints.Length, 64);
+        //    jobHandle.Complete();
+
+        //    Profiler.EndSample();
+
+        //    Profiler.BeginSample($"Iteration {i} | Set");
+
+        //    foreach (Vector2Int res in output)
+        //    {
+        //        result.Add(res);
+        //    }
+
+        //    Profiler.EndSample();
+        //}
 
 
-            foreach(Vector2Int res in output)
-            {
-                result.Add(res);
-            }
-        }
-        output.Dispose();
+        //output.Dispose();
 
-        return result;
+        return output;
     }
 
     private struct PixelsCalculation : IJobParallelFor

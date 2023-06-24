@@ -1,0 +1,17 @@
+{
+    "name": "Sprites",
+    "rootNamespace": "Game.Sprites",
+    "references": [
+        "GUID:5dc512eca27445845ad9fee2937704d5",
+        "GUID:f51ebe6a0ceec4240a699833d6309b23"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

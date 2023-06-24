@@ -13,6 +13,10 @@ public class Brush : MonoBehaviour
         get => transform.position;
         set => transform.position = value;
     }
+    public Vector2 Size
+    {
+        get => spriteRenderer.size;
+    }
 
 
     private void Awake()

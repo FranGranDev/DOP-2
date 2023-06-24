@@ -46,11 +46,14 @@ public class SpriteContainer : MonoBehaviour
 
 
     public event System.Action OnUpdated;
+    public event System.Action OnInitialized;
 
 
-    private void Awake()
+    private void Start()
     {
         CopySprite();
+
+        OnInitialized?.Invoke();
     }
 
     private void CopySprite()
@@ -65,26 +68,20 @@ public class SpriteContainer : MonoBehaviour
 
     public void ClearPixels(IEnumerable<Vector2Int> coords)
     {
-        int changed = 0;
+        Profiler.BeginSample("ClearPixels");
 
-        int index = 0;
+
         int width = texture.width;
         Color32 color = new Color32(0, 0, 0, 0);
         foreach (Vector2Int coord in coords)
         {
-            index = coord.x + coord.y * width;
-            if (pixelsBuffer[index].a == 0)
-                continue;
-
-            pixelsBuffer[index] = color;
-            changed++;
+            pixelsBuffer[coord.x + coord.y * width] = color;
         }
-        if (changed == 0)
-            return;
 
         texture.SetPixels32(pixelsBuffer);
         texture.Apply();
-        //Area.Remove(coords);
+
+        Profiler.EndSample();
 
         OnUpdated?.Invoke();
     }

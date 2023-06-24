@@ -178,6 +178,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 357878878}
+  - component: {fileID: 357878880}
   - component: {fileID: 357878879}
   m_Layer: 0
   m_Name: SpriteEraser
@@ -218,7 +219,18 @@ MonoBehaviour:
   brushSmooth: 0.2
   brushMaxSpeed: 18
   brush: {fileID: 70517416}
-  targetSprite: {fileID: 1390616194}
+--- !u!114 &357878880
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 357878877}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fd89999e3817a6d42b979b9e572f6876, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &509589610
 GameObject:
   m_ObjectHideFlags: 0
@@ -555,6 +567,7 @@ GameObject:
   - component: {fileID: 1390616193}
   - component: {fileID: 1390616191}
   - component: {fileID: 1390616192}
+  - component: {fileID: 1390616195}
   m_Layer: 0
   m_Name: door1
   m_TagString: Untagged
@@ -653,7 +666,8 @@ PolygonCollider2D:
     adaptiveTiling: 0
   m_AutoTiling: 0
   m_Points:
-    m_Paths: []
+    m_Paths:
+    - []
 --- !u!114 &1390616193
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -667,8 +681,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   isEnabled: 1
-  simplify: 10
-  minUpdateTime: 0.33
+  simplify: 3
+  maxFrames: 15
 --- !u!114 &1390616194
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -682,6 +696,46 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   spriteRenderer: {fileID: 1390616191}
+--- !u!60 &1390616195
+PolygonCollider2D:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1390616189}
+  m_Enabled: 1
+  m_Density: 1
+  m_Material: {fileID: 0}
+  m_IsTrigger: 0
+  m_UsedByEffector: 0
+  m_UsedByComposite: 0
+  m_Offset: {x: 0, y: 0}
+  m_SpriteTilingProperty:
+    border: {x: 0, y: 0, z: 0, w: 0}
+    pivot: {x: 0.5, y: 0.5}
+    oldSize: {x: 3.2339199, y: 6.2000003}
+    newSize: {x: 3.24, y: 6.19}
+    adaptiveTilingThreshold: 0.5
+    drawMode: 0
+    adaptiveTiling: 0
+  m_AutoTiling: 1
+  m_Points:
+    m_Paths:
+    - - {x: 1.6254369, y: -1.8}
+      - {x: 1.6254369, y: 2.47625}
+      - {x: 1.5979369, y: 3.04}
+      - {x: 1.5154369, y: 3.095}
+      - {x: 1.0341868, y: 3.10875}
+      - {x: -1.5920631, y: 3.10875}
+      - {x: -1.6195631, y: 3.0262501}
+      - {x: -1.6195631, y: -1.75875}
+      - {x: -1.6058131, y: -2.2675}
+      - {x: -1.5508131, y: -2.9412498}
+      - {x: -1.523313, y: -3.065}
+      - {x: -1.2483131, y: -3.10625}
+      - {x: 1.5016869, y: -3.10625}
+      - {x: 1.5429369, y: -3.05125}
+      - {x: 1.5979369, y: -2.58375}
 --- !u!1 &1590947194
 GameObject:
   m_ObjectHideFlags: 0
@@ -771,7 +825,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2038534161}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalPosition: {x: -1.57, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:

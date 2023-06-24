@@ -2,7 +2,6 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using Game.Utils;
-using NaughtyAttributes;
 using System.Linq;
 using System;
 using UnityEngine.Profiling;
@@ -11,18 +10,18 @@ using Cysharp.Threading.Tasks;
 
 [RequireComponent(typeof(SpriteContainer))]
 [RequireComponent(typeof(PolygonCollider2D))]
-public class TextureCollider : MonoBehaviour
+public class SpriteCollider : MonoBehaviour
 {
     [SerializeField] private bool isEnabled = true;
     [Space]
     [SerializeField, Min(1)] private int simplify;
-    [SerializeField] private float minUpdateTime;
+    [SerializeField, Min(1)] private int maxFrames;
 
     private SpriteContainer spriteContainer;
     private PolygonCollider2D polygonCollider;
 
-    private float prevUpdateTime = float.MinValue;
     private bool updateCalled;
+    private bool isUpdating;
 
     public SpriteContainer Attached
     {
@@ -35,29 +34,19 @@ public class TextureCollider : MonoBehaviour
         polygonCollider = GetComponent<PolygonCollider2D>();
 
         spriteContainer.OnUpdated += CallUpdate;
+        spriteContainer.OnInitialized += CallUpdate;
     }
-    private void Start()
-    {
-        if(isEnabled)
-        {
-            UpdateCollider();
-        }
-    }
-
 
     private void CallUpdate()
     {
         updateCalled = true;
     }
-    private void UpdateCollider()
+    private async void UpdateCollider()
     {
-        if (!isEnabled)
-            return;
+        isUpdating = true;
 
-        Profiler.BeginSample("Islands");
-        List<HashSet<Vector2Int>> pixelIslands = FindPixelIslands(spriteContainer.Pixels, spriteContainer.Size);
+        List<HashSet<Vector2Int>> pixelIslands = await FindPixelIslands(spriteContainer.Pixels, spriteContainer.Size);
 
-        Profiler.EndSample();
         polygonCollider.pathCount = pixelIslands.Count;
 
         int index = 0;
@@ -68,6 +57,8 @@ public class TextureCollider : MonoBehaviour
 
             index++;
         }
+
+        isUpdating = false;
     }
     private void UpdatePart(HashSet<Vector2Int> island, int index)
     {
@@ -83,11 +74,7 @@ public class TextureCollider : MonoBehaviour
 
         for(int i = 0; i < pixels.Length; i++)
         {
-            Vector2 localPoint = TexMath.TextureCoordToPoint(pixels[i], spriteContainer.Sprite);
-            Vector3 worldPoint = transform.TransformPoint(localPoint);
-
-            vertex[i] = worldPoint;
-
+            vertex[i] = TexMath.TextureCoordToPoint(pixels[i], spriteContainer.Sprite);
         }
 
         polygonCollider.SetPath(index, vertex);
@@ -137,13 +124,17 @@ public class TextureCollider : MonoBehaviour
         return border.ToArray();
     }
 
-    private List<HashSet<Vector2Int>> FindPixelIslands(Color[] pixels, Vector2Int size)
+    private async UniTask<List<HashSet<Vector2Int>>> FindPixelIslands(Color[] pixels, Vector2Int size)
     {
         int width = size.x;
         int height = size.y;
         int[] labels = new int[width * height];
         int currentLabel = 1;
         List<HashSet<Vector2Int>> islands = new List<HashSet<Vector2Int>>();
+
+
+        int delay = Mathf.RoundToInt((float)height / (float)(maxFrames * simplify));
+
 
         for (int y = 0; y < height; y += simplify)
         {
@@ -159,11 +150,15 @@ public class TextureCollider : MonoBehaviour
                     currentLabel++;
                 }
             }
+
+            if (y % delay == 0)
+            {
+                await UniTask.Yield();
+            }
         }
 
         return islands;
     }
-
     private void LabelConnectedComponent(Color[] pixels, int[] labels, int width, int height, int x, int y, int currentLabel, HashSet<Vector2Int> islandPixels)
     {
         Queue<Vector2Int> queue = new Queue<Vector2Int>();
@@ -184,7 +179,6 @@ public class TextureCollider : MonoBehaviour
             EnqueueIfValidPixel(queue, labels, pixels, width, height, x, y + simplify, currentLabel, islandPixels);
         }
     }
-
     private void EnqueueIfValidPixel(Queue<Vector2Int> queue, int[] labels, Color[] pixels, int width, int height, int x, int y, int currentLabel, HashSet<Vector2Int> islandPixels)
     {
         if (x >= 0 && x < width && y >= 0 && y < height && pixels[x + y * width].a > 0.5f && labels[x + y * width] == 0)
@@ -197,16 +191,12 @@ public class TextureCollider : MonoBehaviour
     }
 
 
-
     private void Update()
     {
-        UpdateCollider();
-
-        if (updateCalled && Time.time > prevUpdateTime + minUpdateTime)
+        if (isEnabled && !isUpdating && updateCalled)
         {
             UpdateCollider();
 
-            prevUpdateTime = Time.time;
             updateCalled = false;
         }
     }
