@@ -62,7 +62,7 @@ namespace Game.Utils
                 for (int x = 0; x < width; x++)
                 {
                     int index = x + y * width;
-                    if(pixels[index].a > 0.5f)
+                    if(pixels[index].a > 0.1f)
                     {
                         points.Add(new Vector2Int(x, y));
                     }

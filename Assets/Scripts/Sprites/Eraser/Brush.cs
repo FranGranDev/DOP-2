@@ -10,7 +10,8 @@ public class Brush : MonoBehaviour
     [SerializeField, Min(0)] private float animationTime = 0.25f;
     [SerializeField] private Ease animationEase = Ease.InOutSine;
     [Header("Components")]
-    [SerializeField] private SpriteRenderer spriteRenderer;
+    [SerializeField] private SpriteRenderer eraseRenderer;
+    [SerializeField] private SpriteRenderer fakeRenderer;
 
 
     private bool hidden;
@@ -25,7 +26,7 @@ public class Brush : MonoBehaviour
     }
     public Vector2 Size
     {
-        get => spriteRenderer.size;
+        get => fakeRenderer.size;
     }
 
 
@@ -56,7 +57,7 @@ public class Brush : MonoBehaviour
 
     private void Awake()
     {
-        Area = new SpriteArea(spriteRenderer);
+        Area = new SpriteArea(eraseRenderer);
     }
     private void Start()
     {

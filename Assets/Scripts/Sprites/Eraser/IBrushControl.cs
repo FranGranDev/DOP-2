@@ -9,5 +9,7 @@ namespace Game.Sprites
         public Vector2 InputPoint { get; set; }
         public void StartErase(Vector2 point);
         public void EndErase();
+
+        public void Clear();
     }
 }

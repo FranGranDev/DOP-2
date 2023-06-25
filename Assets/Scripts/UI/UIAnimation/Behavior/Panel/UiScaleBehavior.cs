@@ -19,7 +19,7 @@ public class UiScaleBehavior : UiBehavior
         tween = panel.DOScale(0, hideData.time).
             SetDelay(hideData.delay + Time.fixedDeltaTime).
             SetEase(hideData.ease).
-            SetUpdate(true).
+            SetUpdate(UpdateType.Normal).
             OnKill(() => {
                 IsPlaying = false;
                 panel.gameObject.SetActive(false);

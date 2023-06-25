@@ -28,7 +28,7 @@ public class UIAlphaBehavior : UiBehavior
         tween = DOTween.To(() => canvas.alpha, (x) => canvas.alpha = x, 0, hideData.time).
             SetDelay(hideData.delay).
             SetEase(hideData.ease).
-            SetUpdate(true).
+            SetUpdate(UpdateType.Normal).
             OnKill(() => {
                 IsPlaying = false;
                 panel.gameObject.SetActive(false);

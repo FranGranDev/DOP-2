@@ -8,7 +8,8 @@ namespace Game.Sprites
     public class SpriteEraser : MonoBehaviour, IBrushControl
     {
         [Header("Settings")]
-        [SerializeField, Range(1f, 10)] private int iterations = 1;
+        [SerializeField, Range(1f, 10)] private int maxIterations = 1;
+        [SerializeField, Range(0.01f, 1f)] private float iterationThreshold;
         [Header("Brush Settings")]
         [SerializeField, Range(0.1f, 1f)] private float brushSmooth = 1f;
         [SerializeField, Min(0)] private float brushMaxSpeed = 5f;
@@ -51,9 +52,13 @@ namespace Game.Sprites
         }
         private void BrushErase(SpriteContainer sprite)
         {
+            float distance = (brushPoint - brushPrev).magnitude;
+            int iterations = Mathf.Clamp(Mathf.RoundToInt(distance / iterationThreshold), 1, maxIterations);
+
+
             for (int i = 0; i < iterations; i++)
             {
-                Vector3 point = Vector3.Lerp(brushPrev, brushPoint, (float)i / (float)iterations);
+                Vector3 point = Vector3.Lerp(brushPrev, brushPoint, (float)i / (float)maxIterations);
 
                 IEnumerable<Vector2Int> points = coordTransform.Execute(point, sprite, brush.Area);
 

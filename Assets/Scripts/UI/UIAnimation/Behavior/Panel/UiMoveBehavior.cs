@@ -23,7 +23,7 @@ public class UiMoveBehavior : UiBehavior
         tween = panel.DOMove(hidePoint.position, hideData.time).
             SetDelay(hideData.delay + Time.fixedDeltaTime).
             SetEase(hideData.ease).
-            SetUpdate(true).
+            SetUpdate(UpdateType.Normal).
             OnKill(() => { 
                 panel.gameObject.SetActive(false);
                 IsPlaying = false;

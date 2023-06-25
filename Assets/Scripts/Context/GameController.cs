@@ -1,19 +1,19 @@
 using Cysharp.Threading.Tasks;
+using System.Linq;
 using Game.Services;
 using System.Collections.Generic;
 using UI;
 using UnityEngine;
 using Game.Sprites;
-
+using System;
 
 namespace Game.Context
 {
-    public class GameController : MonoBehaviour
+    public class GameController : MonoBehaviour, IGameEvent
     {
         [Header("Links")]
         [SerializeField] private GameUI gameUI;
         [SerializeField] private LevelManager levelManager;
-        [SerializeField] private SpriteEraser spriteEraser;
         [Header("State")]
         [SerializeField] private GameStates gameState;
 
@@ -21,6 +21,11 @@ namespace Game.Context
         private List<ITargetEvent> eventHandlers;
         private EventTypes lastEvent;
         private bool isEnded;
+
+
+        public event Action<GameStates> OnStateChanged;
+        public event Action<int, string> OnLevelLoaded;
+
 
         public EventTypes LastEvent
         {
@@ -31,6 +36,15 @@ namespace Game.Context
                 {
                     lastEvent = value;
                 }
+            }
+        }
+        public GameStates GameState
+        {
+            get => gameState;
+            set
+            {
+                gameState = value;
+                OnStateChanged?.Invoke(value);
             }
         }
 
@@ -52,9 +66,12 @@ namespace Game.Context
         }
         private void Initialize()
         {
-            levelManager.OnLevelLoaded += OnLevelLoaded;
+            levelManager.OnLevelLoaded += LevelLoaded;
             gameUI.OnNextClick += NextLevel;
             gameUI.OnRestartClick += RestartLevel;
+
+
+            BindableService.AutoBind<IGameEvent>(this);
         }
 
 
@@ -70,15 +87,11 @@ namespace Game.Context
 
         private void Win()
         {
-            gameState = GameStates.Win;
-
-            gameUI.State = gameState;
+            GameState = GameStates.Win;
         }
         private void Fail()
         {
-            gameState = GameStates.Fail;
-
-            gameUI.State = gameState;
+            GameState = GameStates.Fail;
         }
 
 
@@ -107,9 +120,9 @@ namespace Game.Context
         }
 
 
-        private void OnLevelLoaded(Level level)
-        {            
-            gameState = GameStates.Game;
+        private void LevelLoaded(Level level)
+        {
+            GameState = GameStates.Game;
             lastEvent = EventTypes.None;
             isEnded = false;
 
@@ -119,10 +132,7 @@ namespace Game.Context
                 handler.OnDone += OnDone;
             }
 
-            gameUI.UpdateLevel(level.Index + 1, level.Label);
-            gameUI.State = gameState;
-
-            spriteEraser.Clear();
+            OnLevelLoaded?.Invoke(level.Index + 1, level.Label);
         }
 
     }

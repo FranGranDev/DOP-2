@@ -8,7 +8,7 @@ using TMPro;
 
 namespace UI
 {
-    public class GameUI : MonoBehaviour
+    public class GameUI : MonoBehaviour, IBindable<IGameEvent>
     {
         [Header("Menus")]
         [SerializeField] private GameObject gameMenu;
@@ -25,20 +25,8 @@ namespace UI
 
         private Dictionary<GameStates, List<UIPanel>> menuPanels;
 
+        private IGameEvent gameEvent;
 
-        public GameStates State
-        {
-            get
-            {
-                return state;
-            }
-            set
-            {
-                OnStateEnd(state);
-                state = value;
-                OnStateStart(state);
-            }
-        }
 
 
         public event Action OnNextClick;
@@ -67,7 +55,13 @@ namespace UI
 
             TurnUI(true);            
         }
+        public void Bind(IGameEvent obj)
+        {
+            gameEvent = obj;
 
+            gameEvent.OnLevelLoaded += UpdateLevel;
+            gameEvent.OnStateChanged += ChangeState;
+        }
 
         public void UpdateLevel(int level, string label)
         {
@@ -75,6 +69,12 @@ namespace UI
             levelNumber.text = $"LEVEL {level}";
         }
 
+        private void ChangeState(GameStates value)
+        {
+            OnStateEnd(state);
+            state = value;
+            OnStateStart(state);
+        }
         private void OnStateStart(GameStates state)
         {
             menuPanels[state].ForEach(x => x.IsShown = true);
@@ -104,5 +104,6 @@ namespace UI
                 return;
             OnNextClick?.Invoke();
         }
+
     }
 }

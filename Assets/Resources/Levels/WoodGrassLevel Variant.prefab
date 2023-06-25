@@ -77,6 +77,10 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 6874094803959276953}
     m_Modifications:
+    - target: {fileID: 1266811510, guid: e6267e95cdf326741855895fe509cc0a, type: 3}
+      propertyPath: m_SortingOrder
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 438888892648237824, guid: e6267e95cdf326741855895fe509cc0a, type: 3}
       propertyPath: m_Name
       value: WoodGrass
@@ -124,6 +128,14 @@ PrefabInstance:
     - target: {fileID: 438888892648237827, guid: e6267e95cdf326741855895fe509cc0a, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7093432537024952071, guid: e6267e95cdf326741855895fe509cc0a, type: 3}
+      propertyPath: m_IsActive
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 7168059476931322652, guid: e6267e95cdf326741855895fe509cc0a, type: 3}
+      propertyPath: m_SortingOrder
+      value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: e6267e95cdf326741855895fe509cc0a, type: 3}
