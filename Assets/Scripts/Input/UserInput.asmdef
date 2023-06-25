@@ -1,0 +1,16 @@
+{
+    "name": "UserInput",
+    "rootNamespace": "Game.UserInput",
+    "references": [
+        "GUID:8d2d7eab533b22a4aad20ba7bd3cdbe2"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

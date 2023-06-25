@@ -1,0 +1,20 @@
+{
+    "name": "Context",
+    "rootNamespace": "Game.Context",
+    "references": [
+        "GUID:f51ebe6a0ceec4240a699833d6309b23",
+        "GUID:8d2d7eab533b22a4aad20ba7bd3cdbe2",
+        "GUID:776d03a35f1b52c4a9aed9f56d7b4229",
+        "GUID:3910b85ccdb450d4786e670a445aac7e",
+        "GUID:1364fc1d31b5c5145b84b24a44135f47"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}
