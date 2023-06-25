@@ -28,6 +28,7 @@ private void TryBrushErase()
 ```
 
 **Стирание объекта | [SpriteEraser.cs](Assets/Scripts/Sprites/Eraser/SpriteEraser.cs)**
+<br>
 Для стиранию применяется итеративных подход для избегания пробелов и срубов при быстром перемещении кисти. Стирание происходит в области пикселей кисти от предыдущей позиции кисти к текущей
 
 ```csharp
@@ -49,7 +50,7 @@ private void BrushErase(SpriteContainer sprite)
 ```
 
 **Преобразование позиций пикселей | [CoordTransform.cs](Assets/Scripts/Sprites/Calculation/CoordTransform.cs)** 
-
+<br>
 Для быстрого преобразования применяется ``C# Jobs``. Массив ``NativeArray<Vector2Int> points`` представляет массив точек кисти, а ``NativeArray<Vector2Int> result`` результирующий массив точек, переведенных в пространство точек текстуры стираемого объекта.
 
 ```csharp
@@ -135,6 +136,7 @@ public void ClearPixels(IEnumerable<Vector2Int> coords)
 Коллайдер генерируется по границе пикселей текстуры объекта, граница определяется прозрачностью пикселей. Для нахождения отдельных остравков пикселей используется алгоритм *Deep First Search*.
 
 **Нахождение остравков пикселей | [SpriteCollider.cs](Assets/Scripts/Sprites/Collider/SpriteCollider.cs)**
+<br>
 Так как алгоритм довольно требовательный, рассчет идет на протяжении `maxFrames` кадров. `Simplify` используется для уровня качества генерируемого коллайдера. Если `Simplify = 1`. Коллайдер генерируется по каждому пикселю текстуры, если `Simplify = 2`, то по каждому второму и тд.
 ```csharp
 private async UniTask<List<HashSet<Vector2Int>>> FindPixelIslands(Color32[] pixels, Vector2Int size)
@@ -202,6 +204,7 @@ private void EnqueueIfValidPixel(Queue<Vector2Int> queue, int[] labels, Color32[
 }
 ```
 **Нахождение границы каждого остравка  | [SpriteCollider.cs](Assets/Scripts/Sprites/Collider/SpriteCollider.cs)**
+<br>
 Для нахождения границы каждого найденного остравка из `FindPixelIslands(Color32[] pixels, Vector2Int size)` используется алгоритм *Boundary Tracing*. Он находит стартовый пиксель и идет вдоль границы, проверяя находится ли пиксель в текущем направлении. Если пиксель не найден, напрвление смещается в правую сторону. Цикл продолжается, пока снова не будет найдена первая найденная точка, то есть граница замкнулась.
 
 ```csharp
@@ -294,6 +297,6 @@ private void CreateCollider(int index, List<Vector2Int> pixels)
 
 ## Производительность
 
-Стирание объекта при кистью с текстурой `MaxIteration = 5` занимает примерно `4-5 ms` на кадр. При `MaxIteration = 1` занимает меньше `1ms`.
+Стирание объекта кистью при `MaxIteration = 5` занимает примерно `4-5 ms` на кадр. При `MaxIteration = 1` занимает меньше `1ms`.
 
 Обновление коллайдера на текстуре `512x512` при `Simplify = 3` и `maxFrames = 10` стабильно работает и занимает примерно `5-6 ms` на каждом кадре.
