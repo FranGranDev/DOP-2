@@ -106,9 +106,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f5a4bfc4ab593b74eb88dca81a48b6de, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  iterations: 4
-  brushSmooth: 0.25
-  brushMaxSpeed: 25
+  iterations: 3
+  brushSmooth: 0.1
+  brushMaxSpeed: 15
   brush: {fileID: 5536826857503226587}
 --- !u!1 &5536826859278597130
 GameObject:

@@ -269,7 +269,7 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 6874094803479004609, guid: 553b5a4c53c84a7438d11dd3126cf56e, type: 3}
       propertyPath: orthographic size
-      value: 6.296219
+      value: 6.349576
       objectReference: {fileID: 0}
     - target: {fileID: 6874094803959276952, guid: 553b5a4c53c84a7438d11dd3126cf56e, type: 3}
       propertyPath: m_Name
@@ -385,6 +385,14 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 1590947195}
     m_Modifications:
+    - target: {fileID: 7580407391028636841, guid: 9f9586d958d0979469287fb4ab90528c, type: 3}
+      propertyPath: m_AnchoredPosition.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7580407391212258292, guid: 9f9586d958d0979469287fb4ab90528c, type: 3}
+      propertyPath: m_AnchoredPosition.x
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 7580407391795986354, guid: 9f9586d958d0979469287fb4ab90528c, type: 3}
       propertyPath: m_Name
       value: '[GameUI]'

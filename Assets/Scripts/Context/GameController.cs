@@ -37,13 +37,24 @@ namespace Game.Context
 
         private void Awake()
         {
-            levelManager.OnLevelLoaded += OnLevelLoaded;
-            gameUI.OnNextClick += NextLevel;
-            gameUI.OnRestartClick += RestartLevel;
+            Setup();
+            Initialize();
         }
         private void Start()
         {
             levelManager.LoadLevel();
+        }
+
+
+        private void Setup()
+        {
+            Application.targetFrameRate = 60;
+        }
+        private void Initialize()
+        {
+            levelManager.OnLevelLoaded += OnLevelLoaded;
+            gameUI.OnNextClick += NextLevel;
+            gameUI.OnRestartClick += RestartLevel;
         }
 
 

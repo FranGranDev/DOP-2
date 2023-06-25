@@ -39,9 +39,15 @@ namespace Game.Context
             Camera.orthographicSize = orthographicSize;
         }
 
-        private void Update()
+        private void Start()
         {
             FitCamera();
+        }
+        private void Update()
+        {
+#if UNITY_EDITOR
+            FitCamera();
+#endif
         }
     }
 }

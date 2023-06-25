@@ -77,8 +77,12 @@ namespace Game.Sprites
         }
 
 
-        public void StartErase()
+        public void StartErase(Vector2 point)
         {
+            brushPoint = point;
+            brushPrev = point;
+            brush.Position = brushPoint;            
+
             isBrushing = true;
         }
         public void EndErase()

@@ -57,6 +57,10 @@ public class Brush : MonoBehaviour
     private void Awake()
     {
         Area = new SpriteArea(spriteRenderer);
+    }
+    private void Start()
+    {
         scale = transform.localScale;
+        transform.localScale = Vector3.zero;
     }
 }

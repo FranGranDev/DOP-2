@@ -7,7 +7,7 @@ namespace Game.Sprites
     public interface IBrushControl
     {
         public Vector2 InputPoint { get; set; }
-        public void StartErase();
+        public void StartErase(Vector2 point);
         public void EndErase();
     }
 }
