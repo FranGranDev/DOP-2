@@ -53,20 +53,19 @@ namespace Game.Sprites
 
             foreach (HashSet<Vector2Int> island in pixelIslands)
             {
-                UpdatePart(island, index);
+                UpdateIsland(island, index);
 
                 index++;
             }
 
             isUpdating = false;
         }
-        private void UpdatePart(HashSet<Vector2Int> island, int index)
+        private void UpdateIsland(HashSet<Vector2Int> island, int index)
         {
             List<Vector2Int> texVertex = FindPixelBoundary(island);
 
             CreateCollider(index, texVertex);
         }
-
 
         private void CreateCollider(int index, List<Vector2Int> pixels)
         {
